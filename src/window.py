@@ -2,9 +2,7 @@ from dataBase import DataBase
 from tkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
-import matplotlib.pyplot as pyplot
 from tkinter import ttk
-
 
 class Window:
     def __init__(self):
@@ -18,9 +16,8 @@ class Window:
             frame = rightF(self)
             self.rightFrames[rightF] = frame
 
-        pyplot.xticks(rotation=45)
         topBar = TopBar(self.root, self)
-        self.figure = Figure(figsize=(10,7), dpi=100)
+        self.figure = Figure(figsize=(13,7), dpi=100)
         self.subplot = self.figure.add_subplot(111)
         self.subplot.plot(self.xList, self.yList)
         self.canvas = FigureCanvasTkAgg(self.figure, self.root)
@@ -30,10 +27,6 @@ class Window:
         self.rightFrames[DownloadFrame].pack(side=RIGHT, anchor=N, pady=30, padx=55)
         self.rightBarShowing = DownloadFrame
         self.rightFrames[RatingFrame].radioBAvarageR.invoke()
-
-
- #       self.drawGraph(["lol","asd"],[1,4],0)
- #       self.subplot.bar([5,8,9],[7,9,4])
 
     def run(self):
         self.root.mainloop()
@@ -67,55 +60,132 @@ class Window:
         xValues = []
         yValues = []
         yMin = 99999.0
-        if genre == "All genres within years":
-            xValues = self.dataBase.genresList[:]
-            if showRatingType == "Avarage":
-                for genre, movies in self.dataBase.genreMovies.items():
-                    sum = 0
-                    for movie, movieData in movies.items():
-                        if not movieData['ImdbRating'] == "":
-                            sum += float(movieData['ImdbRating'])
 
-                    yValues.append(float(sum / len(movies)))
-                    if yValues[-1] < yMin:
-                        yMin = yValues[-1]
-            else: # Best
-                for genre, movies in self.dataBase.genreMovies.items():
-                    bestRating = 0.0
-                    for movie, movieData in movies.items():
-                        if not movieData['ImdbRating'] == "" and float(movieData['ImdbRating']) > bestRating:
-                            bestRating = float(movieData['ImdbRating'])
 
-                    yValues.append(bestRating)
-                    if yValues[-1] < yMin:
-                        yMin = yValues[-1]
-        else: # show for one genre within years
-            xValues = self.dataBase.years[:]
-            movies = self.dataBase.genreMovies[genre]
-            if showRatingType == "Avarage":
-                yearRating = {} # (0,1)  0 - rating sum, 1 - rating counter
-                for year in self.dataBase.years:
-                    yearRating[year] = [0.0,0]
-
-                for movieName, movieData in self.dataBase.moviesDict.items():
-                    if not movieData['ImdbRating'] == "":
-                        yearRating[movieData['Year']][0] += float(movieData['ImdbRating'])
-                        yearRating[movieData['Year']][1] += 1
-
-                for year in self.dataBase.years:
-                    yValues.append(float(yearRating[year][0]/yearRating[year][1]))
-                    if yValues[-1] < yMin:
-                        yMin = yValues[-1]
+        if showRatingType == "Avarage":
+            xValues, yValues, yMin = self.getYListAvarage('ImdbRating', genre)
+        else: # Best
+            xValues, yValues, yMin = self.getYListBest('ImdbRating', genre)
 
 
 
-            else: # Best
 
 
 
-                x=0
+
+
+
+
+
+
+
+#        if genre == "All genres within years":
+#            xValues = self.dataBase.genresList[:]
+#            if showRatingType == "Avarage":
+#                for genre, movies in self.dataBase.genreMovies.items():
+#                    sum = 0
+#                    for movie, movieData in movies.items():
+#                        if not movieData['ImdbRating'] == "":
+#                            sum += float(movieData['ImdbRating'])
+#
+#                    yValues.append(float(sum / len(movies)))
+#                    if yValues[-1] < yMin:
+#                        yMin = yValues[-1]
+#            else: # Best
+#                for genre, movies in self.dataBase.genreMovies.items():
+#                    bestRating = 0.0
+#                    for movie, movieData in movies.items():
+#                        if not movieData['ImdbRating'] == "" and float(movieData['ImdbRating']) > bestRating:
+#                            bestRating = float(movieData['ImdbRating'])
+#
+#                    yValues.append(bestRating)
+#                    if yValues[-1] < yMin:
+#                        yMin = yValues[-1]
+#        else: # show for one genre within years
+#            xValues = self.dataBase.years[:]
+#            movies = self.dataBase.genreMovies[genre]
+#            if showRatingType == "Avarage":
+#                yearRating = {} # (0,1)  0 - rating sum, 1 - rating counter
+#                for year in self.dataBase.years:
+#                    yearRating[year] = [0.0,0]
+#
+#                for movieName, movieData in self.dataBase.moviesDict.items():
+#                    if not movieData['ImdbRating'] == "":
+#                        yearRating[movieData['Year']][0] += float(movieData['ImdbRating'])
+#                        yearRating[movieData['Year']][1] += 1
+#
+#                for year in self.dataBase.years:
+#                    yValues.append(float(yearRating[year][0]/yearRating[year][1]))
+#                    if yValues[-1] < yMin:
+#                        yMin = yValues[-1]
+#
+#
+#
+#            else: # Best
+#
+#
+#
+#                x=0
 
         self.drawGraph(xValues, yValues, yMin)
+
+
+    def getYListAvarage(self, dataToGet, genre):
+        xValues = []
+        yValues = []
+        yMin = 99999.0
+        if genre == "All genres within years":
+            xValues = self.dataBase.genresList[:]
+            for genre, movies in self.dataBase.genreMovies.items():
+                sum = 0
+                for movie, movieData in movies.items():
+                    if not movieData[dataToGet] == "":
+                        sum += float(movieData[dataToGet])
+
+                yValues.append(float(sum / len(movies)))#
+                if yValues[-1] < yMin:
+                    yMin = yValues[-1]
+        else:
+            xValues = self.dataBase.years[:]
+            movies = self.dataBase.genreMovies[genre]
+            yearRating = {} # (0,1)  0 - rating sum, 1 - rating counter
+            for year in self.dataBase.years:
+                yearRating[year] = [0.0,0]
+
+            for movieName, movieData in self.dataBase.moviesDict.items():
+                if not movieData[dataToGet] == "":
+                    yearRating[movieData['Year']][0] += float(movieData[dataToGet])
+                    yearRating[movieData['Year']][1] += 1
+
+            for year in self.dataBase.years:
+                yValues.append(float(yearRating[year][0]/yearRating[year][1]))
+                if yValues[-1] < yMin:
+                    yMin = yValues[-1]
+
+        return xValues, yValues, yMin
+
+
+
+    def getYListBest(self, dataToGet, genre):
+        xValues = []
+        yValues = []
+        yMin = 99999.0
+        if genre == "All genres within years":
+            xValues = self.dataBase.genresList[:]
+            for genre, movies in self.dataBase.genreMovies.items():
+                bestRating = 0.0
+                for movie, movieData in movies.items():
+                    if not movieData['ImdbRating'] == "" and float(movieData['ImdbRating']) > bestRating:
+                        bestRating = float(movieData['ImdbRating'])
+
+                yValues.append(bestRating)
+                if yValues[-1] < yMin:
+                    yMin = yValues[-1]
+        else:
+            xValues = self.dataBase.years[:]
+            x=0
+
+        return xValues, yValues, yMin
 
 
 
@@ -124,7 +194,7 @@ class Window:
             yMin = yMin - 1
 
         self.subplot.clear()
-        self.xList = self.dataBase.genresList[:]
+        self.xList = xlist[:]
         self.yList = ylist[:]
         self.subplot.cla()
         self.subplot.bar(self.xList, self.yList, .5)
@@ -132,7 +202,7 @@ class Window:
         self.subplot.set_ylim(ymin=yMin)
 
         for tick in self.subplot.get_xticklabels():
-            tick.set_rotation(-45)
+            tick.set_rotation(-75)
 
         self.canvas.draw()
 
