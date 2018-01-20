@@ -243,12 +243,6 @@ class Window:
 #        self.figure.set_size_inches(18.5, 10.5)
         self.canvas.draw()
 
-        pid = os.getpid()
-        ps = psutil.Process(pid)
-        memoryUse = ps.memory_info()
-        print(memoryUse)
-        print('----------------')
-
 def get_axis_limits(ax, scale=.9):
     return ax.get_xlim()[1]*scale, ax.get_ylim()[1]*scale
 
