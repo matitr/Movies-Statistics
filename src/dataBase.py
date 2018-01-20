@@ -2,13 +2,14 @@ from downloadDataBase import DownloadDataBase
 import os
 import json
 import sys
+from collections import OrderedDict
 
 class DataBase(DownloadDataBase):
     def __init__(self):
         DownloadDataBase.__init__(self)
         self.genreMovies = {}
         self.genresList = []
-        self.years = []
+        self.genreYears = {}
 
     def downloadDatabase(self, moviesPages):
         super(DataBase,self).downloadDatabase(moviesPages)
@@ -34,14 +35,24 @@ class DataBase(DownloadDataBase):
             for genre in movieData['Genres'].split(','):
                 if genre in self.genreMovies:
                     self.genreMovies[genre][movieName] = movieData
+
+                    if movieData['Year'] not in self.genreYears[genre]:
+                        self.genreYears[genre].append(movieData['Year'])
                 else:
                     self.genresList.append(genre)
                     self.genreMovies[genre] = {}
                     self.genreMovies[genre][movieName] = movieData
-            if movieData['Year'] not in self.years:
-                self.years.append(movieData['Year'])
+
+                    self.genreYears[genre] = []
+                    self.genreYears[genre].append(movieData['Year'])
+
 
         self.genresList.sort()
-        self.years.sort()
+        self.genreMovies = OrderedDict(sorted(self.genreMovies.items()))
+        self.genreYears = OrderedDict(sorted(self.genreYears.items()))
+        for movieGenre in self.genresList:
+            self.genreYears[movieGenre].sort()
+
+
         print("DataBase has been opened")
         return True

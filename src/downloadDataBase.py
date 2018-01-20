@@ -104,8 +104,15 @@ class DownloadDataBase:
         movieData = {}
         year = movie.find('span', {'class': 'lister-item-year text-muted unbold'}).text
 
-        if (year.find('(') >= 0 and year.find(')') >= 0):
-            movieData['Year'] = year[year.find('(') + 1:year.find(')')]
+        year = year.replace(' ', '')
+        while year.find('(') >= 0:
+            if year.find('(') >= 0 and year.find(')') >= 0  and year.find('(') + 1 < len(year):
+                if year[year.find('(') + 1].isdigit():
+                    year = year[year.find('(') + 1:year.find(')')]
+                else:
+                    year = year[year.find(')')+1:]
+
+        movieData['Year'] = year
 
         durationStr = ""
         duration = movie.find('span', {'class': 'runtime'})
@@ -155,4 +162,5 @@ class DownloadDataBase:
         else:
             movieData['Gross'] = ''
 
-        self.moviesDict[name] = movieData
+        if (movieData['Year'].isdigit()):
+            self.moviesDict[name] = movieData
