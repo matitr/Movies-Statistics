@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, '../venv/Lib/site-packages')
+
 from dataBase import DataBase
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
