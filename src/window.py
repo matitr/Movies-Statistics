@@ -192,7 +192,7 @@ class Window:
                     yearBest[movieData['Year']][1] = movieName
 
             for year in self.dataBase.genreYears[genre]:
-                if yearBest[year] != -1:
+                if yearBest[year][0] != -1:
                     yValues.append(float(yearBest[year][0]))
                     self.labels.append(yearBest[year][1])
                     if yValues[-1] < yMin:
